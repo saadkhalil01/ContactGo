@@ -3,7 +3,8 @@ import {
     Text,
     StyleSheet,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    Modal
 }
     from 'react-native'
 import React from 'react'
@@ -12,14 +13,17 @@ import {
     responsiveWidth
 } from "react-native-responsive-dimensions"
 
-export default function ContactCard({ name }) {
+export default function ContactCard({ name,number }) {
     return (
-        <View style={styles.MainCardStyle}>
-            <Text style={{ color: 'black'}}>{name}</Text>
-            <TouchableOpacity>
-                <Image style={{ width: 50, height: 50 }} source={require('../Assets/images/phone.png')} />
-            </TouchableOpacity>
-        </View>
+        <>
+            <View style={styles.MainCardStyle}>
+                <Text style={{ color: 'black' }}>{name}</Text>
+                <TouchableOpacity>
+                    <Image style={{ width: 50, height: 50 }} source={require('../Assets/images/phone.png')} />
+                </TouchableOpacity>
+            </View>
+        </>
+
     )
 }
 const styles = StyleSheet.create({
@@ -34,6 +38,6 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         borderWidth: 2,
         borderRadius: 10,
-        marginTop:'2%'
+        marginTop: '2%'
     },
 });

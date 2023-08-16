@@ -18,6 +18,10 @@ import Contacts from 'react-native-contacts';
 
 export default function App() {
 
+  const [list, setList] = useState([]);
+  const [target, setTarget] = useState('');
+  const [find, setFind] = useState(false);
+
   const RequestContacts = async () => {
     try {
       const granted = await PermissionsAndroid.request
@@ -40,13 +44,11 @@ export default function App() {
       return err;
     }
   };
-  
-  const [list, setList] = useState([]);
-   
+
   useEffect(() => {
     RequestContacts();
   }, []);
-  
+
   return (
     <SafeAreaView style={styles.mainContainer} >
       <StatusBar backgroundColor={'#A73C3C'} barStyle={'default'} />
@@ -56,17 +58,27 @@ export default function App() {
           placeholder='Search here'
           placeholderTextColor='grey'
           backgroundColor='white'
+          onChangeText={setTarget}
+          value={target}
         />
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => setFind(true)}>
           <Image style={styles.ImageStyle}
             source={require('../ContactGo/Assets/images/search.png')} />
         </TouchableOpacity>
 
       </View>
       <ScrollView style={styles.ContactArea}>
-        {
-          list.map((item,index)=>(<ContactCard key={index} name={(item.displayName)?item.displayName:name="NULL"}/>))
-        }
+        {find ? (
+          list
+            .filter(item => item.displayName && item.displayName.toUpperCase().includes(target.toUpperCase()))
+            .map((item, index) => (
+              <ContactCard key={index} name={item.displayName || 'NULL'} />
+            ))
+        ) : (
+          list.map((item, index) => (
+            <ContactCard key={index} name={item.displayName || 'NULL'} />
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   )
