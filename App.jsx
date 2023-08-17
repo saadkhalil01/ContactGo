@@ -6,7 +6,6 @@ import {
   ScrollView,
   TextInput,
   Image,
-  TouchableOpacity,
   PermissionsAndroid,
 }
   from 'react-native';
@@ -14,7 +13,6 @@ import React, { useState, useEffect } from 'react';
 import ContactCard from './Components/ContactCard';
 import { responsiveWidth } from "react-native-responsive-dimensions";
 import Contacts from 'react-native-contacts';
-
 
 export default function App() {
 
@@ -32,7 +30,18 @@ export default function App() {
         });
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         Contacts.getAll().then(
-          (contact) => { setList([...list, ...contact]) }
+          (contact) => {
+            const uniqueContacts = contact.filter(contact => !list.some(item => item.id === contact.id));
+            const updatedList = ([...list, ...uniqueContacts]);
+            updatedList.sort((a, b) => {
+              if (a.displayName > b.displayName) {
+                return 1;
+              } else {
+                return -1;
+              }
+            });
+            setList(updatedList);
+          }
         ).catch(err)
         console.log(err)
       }
@@ -58,27 +67,37 @@ export default function App() {
           placeholder='Search here'
           placeholderTextColor='grey'
           backgroundColor='white'
-          onChangeText={setTarget}
+          onChangeText={(text) => { setTarget(text); setFind(true) }}
           value={target}
         />
-        <TouchableOpacity onPress={() => setFind(true)}>
-          <Image style={styles.ImageStyle}
-            source={require('../ContactGo/Assets/images/search.png')} />
-        </TouchableOpacity>
+
+        <Image style={styles.ImageStyle}
+          source={require('../ContactGo/Assets/images/search.png')} />
+
 
       </View>
       <ScrollView style={styles.ContactArea}>
-        {find ? (
-          list
-            .filter(item => item.displayName && item.displayName.toUpperCase().includes(target.toUpperCase()))
-            .map((item, index) => (
-              <ContactCard key={index} name={item.displayName || 'NULL'} />
-            ))
-        ) : (
-          list.map((item, index) => (
-            <ContactCard key={index} name={item.displayName || 'NULL'} />
-          ))
-        )}
+        {
+          find ? (
+            list.filter(item => { return item.displayName && item.displayName.toUpperCase().includes(target.toUpperCase()) })
+              .map((item, index) => (
+                <ContactCard key={index} name={item.displayName || 'NULL'} 
+                number={item.phoneNumbers && item.phoneNumbers.length > 0
+                  ? item.phoneNumbers[0].number
+                  : 'No number'
+              } />
+              ))
+          )
+            : (
+              list.map((item, index) => (
+                <ContactCard key={index} name={item.displayName || 'NULL'}
+                 number={item.phoneNumbers && item.phoneNumbers.length > 0
+                    ? item.phoneNumbers[0].number
+                    : 'No number'
+                } />
+              ))
+            )
+        }
       </ScrollView>
     </SafeAreaView>
   )
@@ -99,7 +118,7 @@ const styles = StyleSheet.create({
     width: responsiveWidth(92),
     paddingHorizontal: responsiveWidth(3),
     borderColor: 'black',
-    borderWidth: 2,
+    borderWidth: 1,
     borderRadius: 10,
     marginBottom: '2%'
   },
@@ -116,5 +135,5 @@ const styles = StyleSheet.create({
   ContactArea: {
     flex: 0.9,
     backgroundColor: '#A73C3C'
-  },
+  }
 });
